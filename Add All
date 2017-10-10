@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#define myNegativeInfinite -2147483647
+#define myInfinite 2147483647
+
+int A[100005];
+int heapsize=0;
+
+int parent(int i)
+{
+	return i/2;
+}
+
+int left(int i)
+{
+	return 2*i;
+}
+
+int right(int i)
+{
+	return 2*i+1;
+}
+
+void minHeapify(int Q[], int i)
+{
+	int l, r, m, least;
+	l = left(i);
+	r = right(i);
+	
+	if((l<=heapsize) && (Q[l]<Q[i]))
+	{
+		least = l;
+	}
+	else
+	{	
+		least = i;
+	}
+	if((r<=heapsize) && (Q[r]<Q[least]))
+	{
+		least = r;
+	}
+	if(least != i)
+	{
+		m = Q[i];
+		Q[i] = Q[least];
+		Q[least] = m;
+		minHeapify(Q, least);
+	}
+}
+
+int minPQ_Extract(int Q[])
+{
+	int min = myNegativeInfinite;
+	if(heapsize < 1)
+	{
+		printf("Heap underflow.\n");
+	}
+	else
+	{
+		min = Q[1];
+		Q[1] = Q[heapsize];
+		heapsize = heapsize - 1;
+		minHeapify(Q, 1);
+	}
+	return min;
+}
+
+void minPQ_Decreasekey(int Q[], int i, int key)
+{
+	int temp;
+	if(key > Q[i])
+	{	
+		printf("New key is higher than current key.\n");
+	}
+	else
+	{
+		Q[i] = key;
+		while((i>1) && (Q[parent(i)]>Q[i]))
+		{
+			temp = Q[i];
+			Q[i] = Q[parent(i)];
+			Q[parent(i)] = temp;
+			i = parent(i);
+		}
+	}
+}
+
+int minPQ_insert(int Q[], int key)
+{
+	heapsize = heapsize + 1;
+	Q[heapsize] = myInfinite;
+	minPQ_Decreasekey(Q, heapsize, key);
+}
+
+int main()
+{
+	int n, i, k, x, y, cost, sum;
+	while((scanf("%d",&n) != EOF) && (n>=2))
+	{
+		heapsize = 0;		
+		cost = 0;
+		for(i=1; i<=n; i=i+1)
+		{
+			scanf("%d",&k);
+			minPQ_insert(A, k);
+		}
+		
+		for (i=2; i<=n; i=i+1)
+		{
+			x = minPQ_Extract(A);
+			y = minPQ_Extract(A);
+			sum = x + y;
+			cost = cost + sum;
+			minPQ_insert(A, sum);
+		}
+		printf("%d\n",cost);
+	}
+	return 0;
+}
